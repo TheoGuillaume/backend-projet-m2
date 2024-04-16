@@ -22,6 +22,7 @@ app.use((req, res, next) => {
     next();
   });
 
+app.use('/file', express.static('file'));
 app.use('/api', routeAssignments);  
 app.use('/api', routeUser);  
 

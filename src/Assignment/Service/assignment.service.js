@@ -65,7 +65,7 @@ class ServiceAssignment {
             const newAssignment = new ObjAssignment({
                 nom_auteur: data.nom_auteur,
                 prenom_auteur: data.prenom_auteur,
-                photo_auteur: data.photo_auteur || null,
+                photo_auteur: data.photo || null,
                 matiere: data.matiere,
                 note: data.note || 0,
                 dateDeRendu: data.dateDeRendu,
