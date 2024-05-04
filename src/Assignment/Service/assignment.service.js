@@ -1,5 +1,7 @@
 const connectToDB = require('../../../database/db');
 const ObjAssignment = require('../Model/assigment.model');
+let Matiere = require('../../Matiere/Model/matiere.model');
+let Auteur = require('../../Auteur/Model/auteur.model');
 //const faker = require('faker');
 const { faker } = require('@faker-js/faker');
 
@@ -32,24 +34,70 @@ class ServiceAssignment {
         }
     }
 
-    getAssignments = (page, limit) => {
+    getAssignments = async (page, limit) => {
         try {
-            let agregateQuery = ObjAssignment.aggregate();
-            const data = ObjAssignment.aggregatePaginate(agregateQuery, {
+
+            let aggregateQuery = ObjAssignment.aggregate([
+                {
+                    $lookup: {
+                        from: 'auteurs', // Le nom de la collection dans la base de données
+                        localField: 'auteur',
+                        foreignField: '_id',
+                        as: 'auteurDetails'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'matieres', // Le nom de la collection dans la base de données
+                        localField: 'matiere',
+                        foreignField: '_id',
+                        as: 'matiereDetails'
+                    }
+                },
+                {
+                    $unwind: '$auteurDetails'
+                },
+                {
+                    $unwind: '$matiereDetails'
+                },
+                {
+                    $project: {
+                        dateDeRendu: 1,
+                        titre: 1,
+                        description: 1,
+                        note: 1,
+                        remarque: 1,
+                        photo: 1,
+                        rendu: 1,
+                        'auteurDetails.nom': 1,
+                        'auteurDetails.photo': 1,
+                        'matiereDetails.nom': 1,
+                        'matiereDetails.professeur': 1,
+                        'matiereDetails.image': 1
+                    }
+                }
+            ]);
+        
+
+            // Utilisation de populate pour remplacer les références par les documents correspondants de Matiere et Auteur
+            const data = await ObjAssignment.aggregatePaginate(aggregateQuery, {
                 page: parseInt(page) || 1,
                 limit: parseInt(limit) || 10
             });
+
+            //console.log(data);
+
             return data;
         } catch (error) {
             console.log(error);
             throw error;
         }
     }
-
-    getAssignment = (id) => {
+    
+    getAssignment = async (id) => {
         try {
-            if(!id) throw new Error("Id not found");
-            return ObjAssignment.findById(id);
+            if (!id) throw new Error("Id not found");
+            return await ObjAssignment.findById(id).populate('matiere').populate('auteur');
         } catch (error) {
             console.log(error);
             throw error;
@@ -58,19 +106,20 @@ class ServiceAssignment {
 
     createAssignment = async (data) => {
         try {
-            if (!data.nom_auteur) throw new Error("Nom auteur obligatoire.");
+            if (!data.auteur) throw new Error("Nom auteur obligatoire.");
             if (!data.matiere) throw new Error("Matière obligatoire.");
             if (!data.dateDeRendu) throw new Error("Date de rendu obligatoire.");
 
             const newAssignment = new ObjAssignment({
-                nom_auteur: data.nom_auteur,
-                prenom_auteur: data.prenom_auteur,
-                photo_auteur: data.photo || null,
+                titre: data.titre,
+                description: data.description,
+                auteur: data.auteur,
                 matiere: data.matiere,
                 note: data.note || 0,
                 dateDeRendu: data.dateDeRendu,
                 remarque: data.remarque || "",
-                etat: data.etat || 1
+                photo: data.photo || null,
+                rendu: false
             });
 
             return await newAssignment.save();

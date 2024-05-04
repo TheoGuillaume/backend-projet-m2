@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+require("dotenv").config();
 
 exports.authenticateToken = (req,res,next) => {
     const authHeader = req.headers['authorization'];
-    console.log("head", req.headers);
     const token = authHeader && authHeader.split(' ')[1];
     if(token == null){
         return res.status(401).json({ message : "Veuillez regénérer un autre token"});
@@ -21,7 +21,7 @@ exports.authenticateToken = (req,res,next) => {
 };
 
 exports.generateAccessToken = (utilisateur) => {
-    return jwt.sign(utilisateur, process.env.SECRET_TOKEN, {expiresIn: '1d'});
+    return jwt.sign(utilisateur, process.env.SECRET_TOKEN, {expiresIn: '1h'});
 }
 
 exports.hash = async(mdp) => {
