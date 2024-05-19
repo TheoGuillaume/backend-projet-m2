@@ -4,12 +4,24 @@ const ObjAuteur = require('../Model/auteur.model');
 
 class ServiceAuteur {
     constructor() {
-        this.db = connectToDB();
+        //this.db = connectToDB();
     }
 
-    getAuteurs = () => {
+    getAuteurs = async(search = '', page = 1, limit = 1) => {
         try {
-            return ObjAuteur.find();
+            const query = {};
+            if (search) {
+                query.$or = [
+                    { nom: { $regex: search, $options: 'i' } }, // Case-insensitive search for nom
+                    { prenom: { $regex: search, $options: 'i' } } // Case-insensitive search for prenom
+                ];
+            }
+            const aggregateQuery = ObjAuteur.aggregate([{ $match: query },{ $sort : { updateAdt: -1 } }]);
+            const options = {
+                page: page,
+                limit: limit
+            };
+            return await ObjAuteur.aggregatePaginate(aggregateQuery, options);
         } catch (error) {
             console.log(error);
             throw error;
@@ -31,6 +43,8 @@ class ServiceAuteur {
             if (!data.nom) throw new Error("Nom auteur obligatoire.");
             const newAuteur = new ObjAuteur({
                 nom: data.nom,
+                prenom: data.prenom,
+                dateNaissance: data.dateNaissance,
                 photo: data.photo
             });
 
@@ -41,10 +55,10 @@ class ServiceAuteur {
         }
     }
 
-    updateAuteur = async(id, data) => {
+    updateAuteur = async(data) => {
         try {
-            if(!id) throw new Error("Id not found");
-            const updatedAuteur = await ObjAuteur.findByIdAndUpdate(id, data, { new: true });
+            if(!data.id) throw new Error("Id not found");
+            const updatedAuteur = await ObjAuteur.findByIdAndUpdate(data.id, data.etudiant, { new: true });
             if (!updatedAuteur) throw new Error("Auteur not found");
             return updatedAuteur;
         } catch (error) {

@@ -17,7 +17,10 @@ class CtrlAssignment {
 
     gets = async(req, res) => {
         try {
-            return res.status(200).send({statue : "ok", message : "Liste recupérer avec succes", data :  await this.serviceAuteur.getAuteurs()});
+            const search = req.query.search || ''; // Recherche par nom
+            const page = parseInt(req.query.page) || 1; // Page actuelle
+            const limit = parseInt(req.query.limit) || 10; // Limite par page
+            return res.status(200).send({statue : "ok", message : "Liste recupérer avec succes", data :  await this.serviceAuteur.getAuteurs(search, page, limit)});
         } catch (error) {
             return res.status(500).send({statue : "ko", message : error.message})
         }
@@ -33,7 +36,14 @@ class CtrlAssignment {
 
     update = async(req, res) => {
         try {
-            return res.status(200).send({statue : "ok", message : "Modification réussi", data : await this.serviceAuteur.updateAuteur(req.body.id, req.body)});
+            if (typeof req.body.etudiant === 'string') {
+                req.body.etudiant = JSON.parse(req.body.etudiant);
+            }
+            if (req.file) {
+                req.body.etudiant.photo = req.file.filename;
+              }
+            console.log(req.body);
+            return res.status(200).send({statue : "ok", message : "Modification réussi", data : await this.serviceAuteur.updateAuteur(req.body)});
         } catch (error) {
             return res.status(500).send({statue : "ko", message : error.message})
         }
