@@ -17,7 +17,10 @@ class CtrlAssignment {
 
     gets = async(req, res) => {
         try {
-            return res.status(200).send({statue : "ok", message : "Liste recupérer avec succes", data :  await this.serviceAssgnment.getAssignments(req.query.page, req.query.limit)});
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const rendu = req.query.rendu || false;
+            return res.status(200).send({statue : "ok", message : "Liste recupérer avec succes", data :  await this.serviceAssgnment.getAssignments(page, limit, rendu)});
         } catch (error) {
             return res.status(500).send({statue : "ko", message : error.message})
         }

@@ -12,16 +12,20 @@ class ServiceAssignment {
 
     generateAssignments = async() => {
         try {
-            const matieres = ['Web', 'Base de donné', 'TP6', 'Réseau'];
-            for (let i = 0; i < 1000; i++) {
+            const etudiant = ['663536572b18a2016eb83a56','663536762b18a2016eb83a58','663536902b18a2016eb83a5a','664a4e0f85f0421e148738f5','664a74ba5fb3316a309b15e9']
+            const matieres = ['664fac713a3e68ebb1fdc9b7', '664fad183a3e68ebb1fdc9b9', '6651b81419f7bf3b052c8b46', '6651dc9bfc8fa794e393b723'];
+            for (let i = 0; i < 990; i++) {
+                console.log("iteration", i);
                 let assignment = new ObjAssignment({
-                    nom_auteur: faker.internet.userName(),
-                    prenom_auteur: faker.internet.userName(),
+                    titre : 'Tp'+' '+ i,
+                    description : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio dolorem fuga beatae vero officiis vel, blanditiis magnam explicabo facilis repellat error hic alias, illum unde. Blanditiis sapiente possimus labore magnam?',
                     matiere: matieres[Math.floor(Math.random() * matieres.length)],
+                    auteur:  etudiant[Math.floor(Math.random() * etudiant.length)],
                     note: 0,
                     dateDeRendu: faker.date.future(),
                     remarque: null,
-                    etat: 1
+                    etat: 1,
+                    rendu: false
                 });
     
                 await assignment.save();
@@ -34,13 +38,23 @@ class ServiceAssignment {
         }
     }
 
-    getAssignments = async (page, limit) => {
+    getAssignments = async (page, limit,rendu) => {
         try {
-
+            let matchQuery = { };
+            console.log(typeof rendu)
+            if (rendu !== undefined) {
+                if (rendu === 'true' || rendu === true) {
+                    matchQuery.rendu = true;
+                } else if (rendu === 'false' || rendu === false) {
+                    matchQuery.rendu = false;
+                } else {
+                    throw new Error('Invalid value for "rendu". Must be either "true" or "false".');
+                }
+            }
             let aggregateQuery = ObjAssignment.aggregate([
                 {
                     $lookup: {
-                        from: 'auteurs', // Le nom de la collection dans la base de données
+                        from: 'auteurs',
                         localField: 'auteur',
                         foreignField: '_id',
                         as: 'auteurDetails'
@@ -48,7 +62,7 @@ class ServiceAssignment {
                 },
                 {
                     $lookup: {
-                        from: 'matieres', // Le nom de la collection dans la base de données
+                        from: 'matieres',
                         localField: 'matiere',
                         foreignField: '_id',
                         as: 'matiereDetails'
@@ -59,6 +73,9 @@ class ServiceAssignment {
                 },
                 {
                     $unwind: '$matiereDetails'
+                },
+                {
+                    $match: matchQuery // Filtrer les documents par la valeur de "rendu"
                 },
                 {
                     $project: {
@@ -73,19 +90,15 @@ class ServiceAssignment {
                         'auteurDetails.photo': 1,
                         'matiereDetails.nom': 1,
                         'matiereDetails.professeur': 1,
-                        'matiereDetails.image': 1
+                        'matiereDetails.photo': 1
                     }
                 }
             ]);
-        
-
-            // Utilisation de populate pour remplacer les références par les documents correspondants de Matiere et Auteur
+    
             const data = await ObjAssignment.aggregatePaginate(aggregateQuery, {
                 page: parseInt(page) || 1,
                 limit: parseInt(limit) || 10
             });
-
-            //console.log(data);
 
             return data;
         } catch (error) {
@@ -93,6 +106,9 @@ class ServiceAssignment {
             throw error;
         }
     }
+
+   
+    
     
     getAssignment = async (id) => {
         try {
@@ -119,7 +135,7 @@ class ServiceAssignment {
                 dateDeRendu: data.dateDeRendu,
                 remarque: data.remarque || "",
                 photo: data.photo || null,
-                rendu: false
+                rendu: data.note == 0 ? false : true
             });
 
             return await newAssignment.save();

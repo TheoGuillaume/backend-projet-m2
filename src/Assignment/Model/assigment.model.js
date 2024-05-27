@@ -13,8 +13,29 @@ let AssignmentSchema = Schema({
     note : Number,
     remarque : String,
     photo: String,
-    rendu: Boolean
+    rendu: {type : Boolean, default: false},
+    createAdt: {
+        type: Date,
+        default: Date.now
+    },
+    updateAdt: {
+        type: Date,
+        default: Date.now
+    },
 });
+
+AssignmentSchema.plugin(mongoosePaginate);
+// Middleware to update the updateAdt field on save
+AssignmentSchema.pre('save', function(next) {
+    this.updateAdt = Date.now();
+    next();
+});
+
+AssignmentSchema.pre('findOneAndUpdate', function(next) {
+    this._update.updateAdt = Date.now();
+    next();
+});
+
 
 AssignmentSchema.plugin(mongoosePaginate);
 
