@@ -36,7 +36,7 @@ class CtrlAssignment {
 
     update = async(req, res) => {
         try {
-            return res.status(200).send({statue : "ok", message : "Modification réussi", data : await this.serviceAssgnment.updateAssignment(req.body.id, req.body)});
+            return res.status(200).send({statue : "ok", message : "Modification réussi", data : await this.serviceAssgnment.updateAssignment(req.body)});
         } catch (error) {
             return res.status(500).send({statue : "ko", message : error.message})
         }

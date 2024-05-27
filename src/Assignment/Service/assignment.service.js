@@ -21,7 +21,6 @@ class ServiceAssignment {
                     description : 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio dolorem fuga beatae vero officiis vel, blanditiis magnam explicabo facilis repellat error hic alias, illum unde. Blanditiis sapiente possimus labore magnam?',
                     matiere: matieres[Math.floor(Math.random() * matieres.length)],
                     auteur:  etudiant[Math.floor(Math.random() * etudiant.length)],
-                    note: 0,
                     dateDeRendu: faker.date.future(),
                     remarque: null,
                     etat: 1,
@@ -145,10 +144,9 @@ class ServiceAssignment {
         }
     }
 
-    updateAssignment = async(id, data) => {
+    updateAssignment = async(assignment) => {
         try {
-            if(!id) throw new Error("Id not found");
-            const updatedAssignment = await ObjAssignment.findByIdAndUpdate(id, data, { new: true });
+            const updatedAssignment = await ObjAssignment.findByIdAndUpdate(assignment.id, assignment, { new: true });
             if (!updatedAssignment) throw new Error("Assignment not found");
             return updatedAssignment;
         } catch (error) {
