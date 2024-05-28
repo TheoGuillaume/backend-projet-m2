@@ -144,7 +144,7 @@ class ServiceAssignment {
         }
     }
 
-    updateAssignment = async(assignment) => {
+    updateAssignment = async(assignment = {}) => {
         try {
             const updatedAssignment = await ObjAssignment.findByIdAndUpdate(assignment.id, assignment, { new: true });
             if (!updatedAssignment) throw new Error("Assignment not found");
