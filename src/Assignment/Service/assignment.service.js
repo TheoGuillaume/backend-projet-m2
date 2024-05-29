@@ -89,7 +89,8 @@ class ServiceAssignment {
                         'auteurDetails.photo': 1,
                         'matiereDetails.nom': 1,
                         'matiereDetails.professeur': 1,
-                        'matiereDetails.photo': 1
+                        'matiereDetails.photo': 1,
+                        'matiereDetails.photo_prof': 1
                     }
                 }
             ]);
@@ -145,7 +146,7 @@ class ServiceAssignment {
 
     updateAssignment = async(assignment = {}) => {
         try {
-            const updatedAssignment = await ObjAssignment.findByIdAndUpdate(assignment.id, assignment, { new: true });
+            const updatedAssignment = await ObjAssignment.findByIdAndUpdate(assignment._id, assignment, { new: true });
             if (!updatedAssignment) throw new Error("Assignment not found");
             return updatedAssignment;
         } catch (error) {
