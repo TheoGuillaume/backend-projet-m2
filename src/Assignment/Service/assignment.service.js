@@ -130,11 +130,10 @@ class ServiceAssignment {
                 description: data.description,
                 auteur: data.auteur,
                 matiere: data.matiere,
-                note: data.note || 0,
                 dateDeRendu: data.dateDeRendu,
                 remarque: data.remarque || "",
                 photo: data.photo || null,
-                rendu: data.note == 0 ? false : true
+                rendu:  false
             });
 
             return await newAssignment.save();

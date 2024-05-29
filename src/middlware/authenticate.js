@@ -21,7 +21,7 @@ exports.authenticateToken = (req,res,next) => {
 };
 
 exports.generateAccessToken = (utilisateur) => {
-    return jwt.sign(utilisateur, process.env.SECRET_TOKEN, {expiresIn: '1h'});
+    return jwt.sign(utilisateur, process.env.SECRET_TOKEN, {expiresIn: '24h'});
 }
 
 exports.hash = async(mdp) => {
