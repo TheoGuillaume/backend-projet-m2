@@ -77,6 +77,9 @@ class ServiceAssignment {
                     $match: matchQuery // Filtrer les documents par la valeur de "rendu"
                 },
                 {
+                    $sort: { updateAdt: -1 } // Trier par updateAdt en ordre décroissant
+                },
+                {
                     $project: {
                         dateDeRendu: 1,
                         titre: 1,
@@ -90,7 +93,8 @@ class ServiceAssignment {
                         'matiereDetails.nom': 1,
                         'matiereDetails.professeur': 1,
                         'matiereDetails.photo': 1,
-                        'matiereDetails.photo_prof': 1
+                        'matiereDetails.photo_prof': 1,
+                        updateAdt: 1
                     }
                 }
             ]);
