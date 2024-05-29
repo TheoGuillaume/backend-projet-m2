@@ -43,12 +43,10 @@ class CtrlMatiere {
             }
             if (req.files.photo) {
                 req.body.matiere.photo = req.files.photo ? req.files.photo[0].filename : null;
-                console.log("req.body.matiere.photo", req.body.matiere.photo)
             }
 
             if(req.files.photo_prof){
-                req.body.photo_prof.photo_prof = req.files.photo_prof ? req.files.photo_prof[0].filename : null;
-                console.log("req.body.matiere.photo_prof", req.body.photo_prof.photo_prof)
+                req.body.matiere.photo_prof = req.files.photo_prof ? req.files.photo_prof[0].filename : null;
             }
             return res.status(200).send({statue : "ok", message : "Modification réussi", data : await this.serviceMatiere.updateMatiere(req.body)});
         } catch (error) {
